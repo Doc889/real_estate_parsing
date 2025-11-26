@@ -1,0 +1,11 @@
+.env
+session.session
+
+# Игнорируем ненужные файлы
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+*.sqlite3
+*.db
