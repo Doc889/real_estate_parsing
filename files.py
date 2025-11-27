@@ -4,15 +4,22 @@ import logging
 import sys
 
 
-# Root logger
+
+# Root logger (только ваше приложение)
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-if logger.hasHandlers():
-    logger.handlers.clear()
+logger.handlers.clear()
+
 handler = logging.StreamHandler(sys.stdout)
-formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
+handler.setFormatter(
+    logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+)
 logger.addHandler(handler)
+
+# Telethon logger (выключаем)
+telethon_logger = logging.getLogger("telethon")
+telethon_logger.setLevel(logging.ERROR)
+telethon_logger.propagate = False
 
 
 async def save_media(message, unique_id):  # Function for saving the media files
@@ -38,7 +45,16 @@ async def delete_dir(message):
 
     try:
         shutil.rmtree(folder)  # Deleting media files
-        os.mkdir(folder)
         logging.info(f"| MEDIA | {message} ")
     except Exception as e:
         logging.error(f"| MEDIA | Error cleaning media folder: {e}")
+
+
+def delete_dir_sync():
+    folder = "media"
+
+    try:
+        shutil.rmtree(folder, ignore_errors=True)
+        print(f"| MEDIA | Media folder cleaned by shutdown handler")
+    except Exception as e:
+        print(f"| MEDIA | Error cleaning media folder on shutdown: {e}")

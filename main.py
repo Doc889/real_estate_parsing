@@ -6,11 +6,13 @@ import os
 import asyncio
 import shutil
 import sys
+import signal
+import atexit
 
 from db_functions import *
 from bot import send_media_from_folder
 from extraction import check_text
-from files import save_media, delete_dir
+from files import save_media, delete_dir, delete_dir_sync
 
 load_dotenv()
 
@@ -25,15 +27,33 @@ channels = [
     'https://t.me/tashkentkvartiraarenda'
 ]
 
-# Root logger
+
+# Root logger (только ваше приложение)
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-if logger.hasHandlers():
-    logger.handlers.clear()
+logger.handlers.clear()
+
 handler = logging.StreamHandler(sys.stdout)
-formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
+handler.setFormatter(
+    logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+)
 logger.addHandler(handler)
+
+# Telethon logger (выключаем)
+telethon_logger = logging.getLogger("telethon")
+telethon_logger.setLevel(logging.ERROR)
+telethon_logger.propagate = False
+
+
+# signal handlers (systemd stop/restart)
+def handle_signal(signum, frame):
+    delete_dir_sync()
+    logging.info(f"| STOP SIGNAL | Program stopped after signal {signum}")
+    sys.exit(0)
+
+for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
+    signal.signal(sig, handle_signal)
+
 
 folder = "media"
 
@@ -77,9 +97,9 @@ async def main():
                                 await insert_db(unique_id)  # Adding the unique_id of new post in db
                                 logging.info(f"Post {unique_id} inserted into DB.")
                                 await send_media_from_folder(
-                                    chat_id=378020258,
+                                    chat_id=965153930,
                                     folder_path="media",
-                                    text=message.text
+                                    text=f"{message.text}"
                                 )  # Sending the post to user
                                 logging.info(f"| TELEGRAM BOT | Post {unique_id} sent to user.")
                             except Exception as e:
@@ -98,8 +118,9 @@ async def main():
 try:
     asyncio.run(main())
 except KeyboardInterrupt:
-    print("Program has been stopped.")
+    delete_dir_sync()
+    logging.info("| STOP | Program stopped manually.")
 finally:
     if os.path.exists(folder):
-        shutil.rmtree(folder)
-        print("Folder media has been deleted.")
+        delete_dir_sync()
+        logging.info("| STOP | Program stopped.")
