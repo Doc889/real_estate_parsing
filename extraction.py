@@ -21,14 +21,14 @@ async def check_text(text):
     if not pattern_keywords.search(text): # Words checking
         return False
 
-    price_pattern = r'(\d[\d\s]*)\s*(?:\$|usd|USD|долл|дол)' # Price checking
+    price_pattern = r'(?:\((\d{3})\)|(\d[\d\s]*)\s*(?:\$|usd|USD|долл|дол)|\b(\d{3})\b(?=\s|$))'
     match = re.search(price_pattern, text)
     if not match:
         return False
 
     price = int(match.group(1).replace(" ", ""))
 
-    if 700 <= price <= 850:
+    if 650 <= price <= 850:
         return True
     else:
         return False

@@ -24,6 +24,8 @@ channels = [
     'https://t.me/dom_arenda_kvartira',
     'https://t.me/arentash',
     'https://t.me/kvartira_dom_arenda',
+    'https://t.me/tashkentkvartiraarenda',
+    'https://t.me/goodfriend_realestate',
     'https://t.me/tashkentkvartiraarenda'
 ]
 
