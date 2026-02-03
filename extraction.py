@@ -26,7 +26,8 @@ async def check_text(text):
     if not match:
         return False
 
-    price = int(match.group(1).replace(" ", ""))
+    price_str = match.group(1) or match.group(2) or match.group(3)
+    price = int(price_str.replace(" ", ""))
 
     if 650 <= price <= 850:
         return True

@@ -88,6 +88,7 @@ async def main():
                     logging.info(f"| MEDIA | Media saved for message {unique_id}")
                     if unique_id not in message_ids:  # Check either the post has been already sent
                         try:
+                            print(message.text)
                             valid_post = await check_text(message.text)  # Validating of new posts
                             logging.info(f"| VALIDATING | Validating new post {unique_id}...")
                         except Exception as e:
@@ -99,7 +100,7 @@ async def main():
                                 await insert_db(unique_id)  # Adding the unique_id of new post in db
                                 logging.info(f"Post {unique_id} inserted into DB.")
                                 await send_media_from_folder(
-                                    chat_id=965153930,
+                                    chat_id=378020258,
                                     folder_path="media",
                                     text=f"{message.text}"
                                 )  # Sending the post to user
